@@ -259,21 +259,6 @@
             </div>
 
             <div class="record-two-columns">
-              <div class="attachment-panel">
-                <span>Pedido de Compra (anexo)</span>
-                <button
-                  v-if="purchaseOrderAttachment(selectedWork)"
-                  type="button"
-                  class="attachment-action"
-                  :aria-label="`Visualizar ${purchaseOrderAttachment(selectedWork).name}`"
-                  @click="openPreview(purchaseOrderAttachment(selectedWork))"
-                >
-                  <span class="material-icons" aria-hidden="true">visibility</span>
-                  <span>{{ purchaseOrderAttachment(selectedWork).name }}</span>
-                </button>
-                <strong v-else>Sem anexos</strong>
-              </div>
-
               <div class="address-panel">
                 <span>Endereço de entrega</span>
                 <strong>{{ displayValue(selectedWork.city) }}</strong>
@@ -538,26 +523,13 @@ const findWorkAttachment = (work, categories) =>
 const workAttachmentSlots = (work) => [
   {
     label: 'Proposta Comercial (anexo)',
-    attachment: findWorkAttachment(work, ['Proposta comercial', 'Orçamento']),
+    attachment: findWorkAttachment(work, ['Proposta Comercial']),
   },
   {
-    label: 'Memorial de Cálculo',
-    attachment: findWorkAttachment(work, ['Memorial de cálculo', 'Projeto executivo']),
-  },
-  {
-    label: 'ART',
-    attachment: findWorkAttachment(work, ['ART', 'Registro de obra']),
-  },
-  {
-    label: 'Pedido de Compra (anexo)',
-    attachment:
-      findWorkAttachment(work, ['Pedido de compra']) ||
-      (work?.linkedDeliveries || []).find((delivery) => delivery.purchaseOrderAttachment)?.purchaseOrderAttachment ||
-      null,
+    label: 'Enviado pelo cliente',
+    attachment: findWorkAttachment(work, ['Enviado pelo Cliente']),
   },
 ];
-
-const purchaseOrderAttachment = (work) => findWorkAttachment(work, ['Pedido de compra']);
 
 const registrationAttachments = (work) =>
   (work?.attachments || []).filter((attachment) => attachmentMatchesCategory(attachment, ['Registro de obra']));

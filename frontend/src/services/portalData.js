@@ -95,7 +95,17 @@ function adaptClientPortalData(dashboard) {
       deliveryAddress: budget.deliveryAddress || 'Endereço não informado',
       linkedProjects,
       linkedDeliveries,
-      attachments: budget.attachments || [],
+      // Adapta os anexos do backend (filename/url) para o formato que a
+      // tela e o modal de preview esperam (name/href).
+      attachments: (budget.attachments || []).map((att) => ({
+        id: att.id,
+        name: att.filename || att.name || 'arquivo-sem-nome',
+        href: att.url || att.href || '#',
+        category: att.category || 'Documento',
+        type: att.type || null,
+        size: att.size || null,
+        actionLabel: 'Visualizar',
+      })),
     };
   });
 
