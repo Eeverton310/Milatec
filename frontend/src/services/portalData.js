@@ -105,6 +105,7 @@ function adaptClientPortalData(dashboard) {
         type: att.type || null,
         size: att.size || null,
         actionLabel: 'Visualizar',
+        linkedRecordName: budget.name || 'Obra',
       })),
     };
   });

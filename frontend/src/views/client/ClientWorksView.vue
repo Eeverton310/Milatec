@@ -313,8 +313,17 @@
       >
         <header class="preview-modal__header">
           <div class="preview-modal__info">
+            <span
+              v-if="previewAttachment.category"
+              class="category-chip"
+              :class="categoryClass(previewAttachment.category)"
+            >
+              {{ previewAttachment.category }}
+            </span>
             <h3>{{ previewAttachment.name }}</h3>
-            <p v-if="previewAttachment.category">{{ previewAttachment.category }}</p>
+            <p v-if="previewAttachment.linkedRecordName">
+              Obra · {{ previewAttachment.linkedRecordName }}
+            </p>
           </div>
 
           <div class="preview-modal__actions">
@@ -568,6 +577,16 @@ const isImage = (attachment) => {
 const isPdf = (attachment) => {
   if (!attachment?.name) return false;
   return /\.pdf$/i.test(attachment.name);
+};
+
+const categoryClass = (category) => {
+  if (!category) return '';
+  const normalized = category
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '-')
+    .toLowerCase();
+  return `category-chip--${normalized}`;
 };
 
 const handleEscapeKey = (event) => {
@@ -1383,28 +1402,30 @@ watch(previewAttachment, (newValue) => {
   font-size: 14px;
   line-height: 1.5;
 }
-.preview-backdrop {
+@media (max-width: 720px) {
+  .preview-backdrop {
     padding: 0;
   }
-.preview-modal {
+  .preview-modal {
     width: 100%;
     height: 100vh;
     max-height: none;
     border-radius: 0;
   }
-.preview-modal__header {
+  .preview-modal__header {
     padding: 16px 18px;
   }
-.preview-modal__info h3 {
+  .preview-modal__info h3 {
     font-size: 16px;
   }
-.preview-action span:last-child {
+  .preview-action span:last-child {
     display: none;
   }
-.preview-action--download {
+  .preview-action--download {
     width: 44px;
     padding: 0;
   }
+}
 @keyframes backdrop-fade-in {
   from {
     opacity: 0;
@@ -1422,5 +1443,37 @@ watch(previewAttachment, (newValue) => {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+
+/* ===== Tag de categoria no modal de preview ===== */
+.category-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 11px;
+  border-radius: 8px;
+  color: #1450c8;
+  border: 1px solid rgba(0, 74, 232, 0.16);
+  background: rgba(0, 74, 232, 0.08);
+  font-size: 12px;
+  font-weight: 800;
+}
+.category-chip--nota-fiscal,
+.category-chip--romaneio,
+.category-chip--logistica,
+.category-chip--pedido-de-compra {
+  color: #087443;
+  border-color: rgba(0, 163, 74, 0.18);
+  background: rgba(0, 163, 74, 0.1);
+}
+.category-chip--cronograma,
+.category-chip--orcamento,
+.category-chip--proposta-comercial,
+.category-chip--art,
+.category-chip--memorial-de-calculo {
+  color: #a36715;
+  border-color: rgba(183, 121, 31, 0.22);
+  background: rgba(183, 121, 31, 0.1);
 }
 </style>
