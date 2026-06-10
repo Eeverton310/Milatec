@@ -16,16 +16,9 @@ export class DocumentsService {
      A tabela "Instalações" NÃO deve aparecer no sistema do cliente.       */
   private readonly attachmentFields = {
     Orçamentos: [
-      { field: 'Nota Fiscal (anexo)', category: 'Nota Fiscal' },
-      { field: 'Proposta comercial (anexo)', category: 'Proposta Comercial' },
-      { field: 'Pedido de Compra (anexo)', category: 'Pedido de Compra' },
-      { field: 'Contrato (anexo)', category: 'Contrato' },
-      { field: 'Contrato instalação (anexo)', category: 'Contrato de Instalação' },
-      { field: 'CNPJ & CNO (anexo)', category: 'CNPJ e CNO' },
       { field: 'Enviado pelo cliente', category: 'Enviado pelo Cliente' },
     ],
     Entregas: [
-      { field: 'Romaneio de entrega (anexo)', category: 'Romaneio de Entrega' },
       {
         field: 'Contrato (anexo) (from Orçamentos)',
         category: 'Contrato',
@@ -112,9 +105,7 @@ export class DocumentsService {
       const budgetName =
         tableName === 'Orçamentos'
           ? record['Orçamentos'] || null
-          : this.normalizeArrayOrString(
-              record['Orçamentos (from Orçamentos)'] || record['Entregas'],
-            ) || null;
+          : this.normalizeArrayOrString(record['Entregas']) || null;
 
       const budgetId =
         tableName === 'Orçamentos'

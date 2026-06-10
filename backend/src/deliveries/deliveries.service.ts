@@ -100,16 +100,40 @@ export class DeliveriesService {
   private mapDelivery(delivery: any) {
     return {
       id: delivery.id,
-      name: delivery['Etapa de entrega'] || 'Informação em atualização',
-      stage: delivery['Etapa de entrega'] || 'Informação em atualização',
-      value: delivery['Valor'] || null,
-      city: delivery['Cidade da obra'] || null,
+      // Nome da entrega = campo "Entregas" (ex: "RL - JARDINS - 9ª ENTREGA")
+      name: this.normalizeArrayOrString(delivery['Entregas']) ||
+        'Informação em atualização',
+      // Etapa real = "Etapa da entrega" (e não "Etapa de entrega")
+      stage: delivery['Etapa da entrega'] || 'Informação em atualização',
+      // Valor real = "Valor Entrega Realizada"
+      value: delivery['Valor Entrega Realizada'] ?? null,
+      // Cidade: usa a da obra; cai para o lookup vindo de Orçamentos
+      city:
+        delivery['Cidade da obra'] ||
+        this.normalizeArrayOrString(delivery['Cidade da obra (from Orçamentos)']) ||
+        null,
       deliveryDate: delivery['Data de entrega'] || null,
-      quantity: delivery['Quantidade'] || null,
+      quantity: delivery['Quantidade'] ?? null,
+      weight: delivery['Peso do pedido (kg)'] ?? null,
+      largestPart: delivery['Maior peça (mm)'] ?? null,
       transport: delivery['Transporte'] || null,
-      realizedValue: delivery['Valor entrega realizada'] || null,
-      shippingNote: delivery['Romaneio de entrega'] || null,
+      deliveryAddress:
+        this.cleanText(delivery['Endereço de entrega']) ||
+        this.cleanText(delivery['Endereço de entrega (from Orçamentos)']) ||
+        null,
       linkedBudgets: delivery['Orçamentos'] || [],
     };
+  }
+
+  private cleanText(value: any): string | null {
+    if (typeof value === 'string') return value.trim();
+    return this.normalizeArrayOrString(value);
+  }
+
+  private normalizeArrayOrString(value: any): string | null {
+    if (Array.isArray(value)) {
+      return value.length > 0 ? String(value[0]) : null;
+    }
+    return value || null;
   }
 }
