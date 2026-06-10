@@ -103,6 +103,7 @@ export class ProjectsService {
       city: this.normalizeArrayOrString(project['Cidade da obra']),
       weight: project['Peso do projeto (kg)'] || 0,
       totalWeight: project['Peso Total'] || 0,
+      quantity: project['Quantidade'] ?? null,
       largestPart: project['Maior peça'] || null,
       totalValue: project['Valor total (Projeto)'] || 0,
       linkedBudgets: project['Orçamentos'] || [],
