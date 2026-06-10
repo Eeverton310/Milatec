@@ -1,0 +1,56 @@
+:root {
+  /* Palette */
+  --blue-900: #050866;
+  --blue-800: #0632b0;
+  --blue-700: #004ae8;
+  --green-600: #00a34a;
+  --green-400: #44c878;
+  --gray-50: #f6f7f8;
+  --gray-100: #edf0f6;
+  --white: #f6f7f8;
+
+  /* Semantic */
+  --sidebar: #050866;
+  --page-bg: #f6f7f8;
+  --card: #ffffff;
+  --primary: #004ae8;
+  --primary-strong: #050866;
+  --accent: #00a34a;
+  --accent-soft: #44c878;
+  --warning: #b7791f;
+  --danger: #c2415d;
+  --text: #15204a;
+  --text-strong: #050866;
+  --muted: #6f7b96;
+  --stroke: #dfe7f2;
+  --stroke-soft: #ebf0f7;
+  --overlay: rgba(5, 8, 102, 0.76);
+  --page-max-width: 1200px;
+
+  /* Spacing scale */
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Radius */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+
+  /* Shadows */
+  --shadow-sm: 0 8px 20px rgba(5, 8, 102, 0.08);
+  --shadow-md: 0 14px 30px rgba(5, 8, 102, 0.12);
+  --shadow-lg: 0 20px 44px rgba(5, 8, 102, 0.16);
+
+  /* Typography */
+  --font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fs-xs: 12px;
+  --fs-sm: 14px;
+  --fs-md: 15px;
+  --fs-lg: 18px;
+  --fs-xl: 24px;
+  --fs-2xl: 32px;
+}
