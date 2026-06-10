@@ -89,12 +89,6 @@
           </div>
 
           <div class="project-record-modal__actions">
-            <button class="record-icon-button" type="button" aria-label="Imprimir detalhe">
-              <span class="material-icons" aria-hidden="true">print</span>
-            </button>
-            <button class="record-icon-button" type="button" aria-label="Copiar link">
-              <span class="material-icons" aria-hidden="true">link</span>
-            </button>
             <button class="record-icon-button" type="button" aria-label="Fechar detalhe" @click="closeDetail">
               <span class="material-icons" aria-hidden="true">close</span>
             </button>

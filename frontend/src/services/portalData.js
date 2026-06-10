@@ -39,6 +39,27 @@ function isStageInProgress(stage) {
   return !finalStages.some((s) => lower.includes(s));
 }
 
+/* Converte um anexo cru do backend (filename/url) para o formato que a
+   tela e o modal de preview esperam (name/href). Retorna null se vazio. */
+function adaptAttachment(att, linkedRecordName) {
+  if (!att) return null;
+  // O backend pode mandar um array de anexos ou um único objeto
+  const source = Array.isArray(att) ? att[0] : att;
+  if (!source) return null;
+  const url = source.url || source.href;
+  if (!url) return null;
+  return {
+    id: source.id,
+    name: source.filename || source.name || 'arquivo-sem-nome',
+    href: url,
+    category: source.category || 'Documento',
+    type: source.type || null,
+    size: source.size || null,
+    actionLabel: 'Visualizar',
+    linkedRecordName: linkedRecordName || null,
+  };
+}
+
 function adaptClientPortalData(dashboard) {
   const {
     company,
@@ -135,18 +156,30 @@ function adaptClientPortalData(dashboard) {
     return {
       id: project.id,
       workId: parentBudget?.id || '',
+      obraId: parentBudget?.id || '',
       workName: parentBudget?.name || 'Obra não vinculada',
+      budgetName: parentBudget?.name || 'Obra não vinculada',
+      budgetStatus: parentBudget?.stage || 'Informação em atualização',
       name: project.name,
       product: project.budgetType || project.product || 'Produto não informado',
       location: parentBudget?.city || 'Local não informado',
+      workCity: parentBudget?.city || 'Local não informado',
       type: project.budgetType || 'Tipo não informado',
       stage: project.stage,
-      quantity: project.weight ? `${project.weight} kg` : 'Quantidade não informada',
+      quantity:
+        project.quantity != null
+          ? String(project.quantity)
+          : 'Quantidade não informada',
       unitValue: 'A informar',
       totalValue: parentBudget?.value
         ? formatCurrency(parentBudget.value)
         : 'A informar',
       inProgress: isStageInProgress(project.stage),
+      // Anexos da documentação do projeto (adaptados para name/href)
+      preProjectAttachment: adaptAttachment(project.preProjectAttachment),
+      approvalAttachment: adaptAttachment(project.approvalAttachment),
+      executiveAttachment: adaptAttachment(project.executiveAttachment),
+      registrationAttachment: adaptAttachment(project.registrationAttachment),
     };
   });
 
