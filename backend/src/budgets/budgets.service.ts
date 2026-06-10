@@ -63,7 +63,7 @@ export class BudgetsService {
     return {
       id: budget.id,
 
-      /* Nome da obra = campo "Orçamentos" */
+      /* Nome da obra = campo "Orçamentos" (ex: "STANZA - LUZITÁ - P11187") */
       name: this.cleanText(budget['Orçamentos']) || 'Informação em atualização',
 
       /* Produto: prefere o lookup dos Projetos; cai para o campo Produto simples */
@@ -117,6 +117,7 @@ export class BudgetsService {
       { field: 'Contrato instalação (anexo)', category: 'Contrato de Instalação' },
       { field: 'CNPJ & CNO (anexo)', category: 'CNPJ e CNO' },
       { field: 'Enviado pelo cliente', category: 'Enviado pelo Cliente' },
+      { field: 'Fotos da Obra', category: 'Registro de obra' },
     ];
 
     const result: any[] = [];
