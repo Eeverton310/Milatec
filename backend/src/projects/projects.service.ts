@@ -106,8 +106,32 @@ export class ProjectsService {
       quantity: project['Quantidade'] ?? null,
       largestPart: project['Maior peça'] || null,
       totalValue: project['Valor total (Projeto)'] || 0,
+      // Valor da unidade (nome real: "Valor da unidade (Orçamento)")
+      unitValue:
+        project['Valor da unidade (Orçamento)'] ??
+        project['Valor da unidade'] ??
+        null,
+      // Anexos da documentação do projeto (nomes reais do Airtable)
+      preProjectAttachment: this.firstAttachment(project['Pré-Projeto']),
+      approvalAttachment: this.firstAttachment(project['Projeto para aprovação']),
+      executiveAttachment: this.firstAttachment(project['Projeto executivo']),
+      registrationAttachment: this.firstAttachment(project['Registro de Obra']),
       linkedBudgets: project['Orçamentos'] || [],
       linkedDeliveries: project['Entregas'] || [],
+    };
+  }
+
+  /* Retorna o primeiro anexo de um campo (ou null), normalizado. */
+  private firstAttachment(value: any) {
+    if (!Array.isArray(value) || value.length === 0) return null;
+    const att = value[0];
+    if (!att || !att.url) return null;
+    return {
+      id: att.id,
+      filename: att.filename || 'arquivo-sem-nome',
+      url: att.url,
+      size: att.size || null,
+      type: att.type || null,
     };
   }
   

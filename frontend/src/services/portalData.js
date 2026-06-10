@@ -170,7 +170,10 @@ function adaptClientPortalData(dashboard) {
         project.quantity != null
           ? String(project.quantity)
           : 'Quantidade não informada',
-      unitValue: 'A informar',
+      unitValue:
+        project.unitValue != null
+          ? formatCurrency(project.unitValue)
+          : 'A informar',
       totalValue: parentBudget?.value
         ? formatCurrency(parentBudget.value)
         : 'A informar',

@@ -163,17 +163,16 @@
             <div class="project-document-grid">
               <div v-for="item in projectDocumentRows(selectedProject)" :key="item.label" class="project-document-slot">
                 <span>{{ item.label }}</span>
-                <a
+                <button
                   v-if="item.attachment"
-                  :href="item.attachment.href"
+                  type="button"
                   class="attachment-action"
-                  :aria-label="item.attachment.actionLabel"
+                  :aria-label="`Visualizar ${item.attachment.name}`"
+                  @click="openPreview(item.attachment)"
                 >
-                  <span class="material-icons" aria-hidden="true">
-                    {{ resolveActionIcon(item.attachment.actionLabel) }}
-                  </span>
+                  <span class="material-icons" aria-hidden="true">visibility</span>
                   <span>{{ item.attachment.name }}</span>
-                </a>
+                </button>
                 <strong v-else>Sem anexos</strong>
               </div>
             </div>
@@ -181,17 +180,16 @@
             <div class="project-registry">
               <span>Registro da Obra</span>
               <div class="project-registry__box">
-                <a
+                <button
                   v-if="selectedProject.registrationAttachment"
-                  :href="selectedProject.registrationAttachment.href"
+                  type="button"
                   class="attachment-action"
-                  :aria-label="selectedProject.registrationAttachment.actionLabel"
+                  :aria-label="`Visualizar ${selectedProject.registrationAttachment.name}`"
+                  @click="openPreview(selectedProject.registrationAttachment)"
                 >
-                  <span class="material-icons" aria-hidden="true">
-                    {{ resolveActionIcon(selectedProject.registrationAttachment.actionLabel) }}
-                  </span>
+                  <span class="material-icons" aria-hidden="true">visibility</span>
                   <span>{{ selectedProject.registrationAttachment.name }}</span>
-                </a>
+                </button>
                 <strong v-else>Sem anexos</strong>
               </div>
             </div>
@@ -200,6 +198,88 @@
       </section>
     </div>
   </template>
+
+    <!-- Modal de Preview de Anexo -->
+    <div
+      v-if="previewAttachment"
+      class="preview-backdrop"
+      role="presentation"
+      @click.self="closePreview"
+    >
+      <section
+        class="preview-modal"
+        role="dialog"
+        aria-modal="true"
+        :aria-label="`Visualização de ${previewAttachment.name}`"
+      >
+        <header class="preview-modal__header">
+          <div class="preview-modal__info">
+            <span
+              v-if="previewAttachment.category"
+              class="category-chip"
+            >
+              {{ previewAttachment.category }}
+            </span>
+            <h3>{{ previewAttachment.name }}</h3>
+            <p v-if="previewAttachment.linkedRecordName">
+              Projeto · {{ previewAttachment.linkedRecordName }}
+            </p>
+          </div>
+
+          <div class="preview-modal__actions">
+            <a
+              :href="previewAttachment.href"
+              class="preview-action preview-action--download"
+              target="_blank"
+              rel="noopener noreferrer"
+              :aria-label="`Baixar ${previewAttachment.name}`"
+            >
+              <span class="material-icons" aria-hidden="true">download</span>
+              <span>Baixar</span>
+            </a>
+            <button
+              type="button"
+              class="preview-action preview-action--close"
+              aria-label="Fechar visualização"
+              @click="closePreview"
+            >
+              <span class="material-icons" aria-hidden="true">close</span>
+            </button>
+          </div>
+        </header>
+
+        <div class="preview-modal__body">
+          <img
+            v-if="isImage(previewAttachment)"
+            :src="previewAttachment.href"
+            :alt="previewAttachment.name"
+            class="preview-image"
+          />
+
+          <iframe
+            v-else-if="isPdf(previewAttachment)"
+            :src="previewAttachment.href"
+            :title="`Visualização de ${previewAttachment.name}`"
+            class="preview-frame"
+          ></iframe>
+
+          <div v-else class="preview-fallback">
+            <span class="material-icons preview-fallback__icon" aria-hidden="true">description</span>
+            <h4>Visualização indisponível neste formato</h4>
+            <p>Este arquivo precisa ser baixado para ser visualizado.</p>
+            <a
+              :href="previewAttachment.href"
+              class="preview-action preview-action--download preview-action--large"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="material-icons" aria-hidden="true">download</span>
+              <span>Baixar arquivo</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
   </div>
 </template>
 
@@ -353,6 +433,45 @@ const resolveActionIcon = (actionLabel) => {
 
   return iconByAction[actionLabel] || 'description';
 };
+
+/* ---- Modal de preview de anexos ---- */
+const previewAttachment = ref(null);
+
+const openPreview = (attachment) => {
+  if (!attachment || !attachment.href || attachment.href === '#') return;
+  previewAttachment.value = attachment;
+};
+
+const closePreview = () => {
+  previewAttachment.value = null;
+};
+
+const isImage = (attachment) => {
+  if (!attachment?.name) return false;
+  return /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(attachment.name);
+};
+
+const isPdf = (attachment) => {
+  if (!attachment?.name) return false;
+  return /\.pdf$/i.test(attachment.name);
+};
+
+const handleEscapeKey = (event) => {
+  if (event.key === 'Escape' && previewAttachment.value) {
+    closePreview();
+  }
+};
+
+watch(previewAttachment, (newValue) => {
+  if (typeof window === 'undefined') return;
+  if (newValue) {
+    window.addEventListener('keydown', handleEscapeKey);
+    document.body.style.overflow = 'hidden';
+  } else {
+    window.removeEventListener('keydown', handleEscapeKey);
+    document.body.style.overflow = '';
+  }
+});
 </script>
 
 <style scoped>
@@ -912,4 +1031,224 @@ const resolveActionIcon = (actionLabel) => {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ===== Modal de preview de anexos (reaproveitado da tela de Anexos) ===== */
+/* ========== MODAL DE PREVIEW ========== */
+
+.preview-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(5, 8, 102, 0.58);
+  backdrop-filter: blur(4px);
+  animation: backdrop-fade-in 0.2s ease;
+}
+.preview-modal {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  width: min(1100px, 100%);
+  height: min(85vh, 900px);
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 30px 80px rgba(5, 8, 102, 0.32);
+  overflow: hidden;
+  animation: modal-slide-up 0.25s ease;
+}
+.preview-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 22px 26px;
+  border-bottom: 1px solid var(--stroke-soft);
+  background: linear-gradient(180deg, #ffffff, #f7f9fc);
+}
+.preview-modal__info {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.preview-modal__info h3 {
+  color: var(--text-strong);
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.3;
+  word-break: break-word;
+}
+.preview-modal__info p {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+.preview-modal__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.preview-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease,
+    border-color 0.15s ease;
+}
+.preview-action:hover {
+  transform: translateY(-1px);
+}
+.preview-action--download {
+  background: linear-gradient(180deg, #0aa757, #087443);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 163, 74, 0.28);
+}
+.preview-action--download:hover {
+  background: linear-gradient(180deg, #0eb763, #0a8a4f);
+}
+.preview-action--large {
+  min-height: 46px;
+  padding: 0 22px;
+  font-size: 15px;
+}
+.preview-action--close {
+  width: 40px;
+  padding: 0;
+  border-color: var(--stroke-soft);
+  color: var(--text-strong);
+  background: #ffffff;
+}
+.preview-action--close:hover {
+  background: #f5f7fb;
+  border-color: rgba(5, 8, 102, 0.16);
+}
+.preview-modal__body {
+  display: grid;
+  place-items: stretch;
+  overflow: hidden;
+  background: #f4f6fa;
+}
+.preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #ffffff;
+}
+.preview-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #ffffff;
+}
+.preview-fallback {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 14px;
+  padding: 40px;
+  text-align: center;
+}
+.preview-fallback__icon {
+  color: var(--primary);
+  font-size: 56px;
+}
+.preview-fallback h4 {
+  color: var(--text-strong);
+  font-size: 19px;
+  font-weight: 800;
+}
+.preview-fallback p {
+  max-width: 380px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+@media (max-width: 720px) {
+  .preview-backdrop {
+    padding: 0;
+  }
+  .preview-modal {
+    width: 100%;
+    height: 100vh;
+    max-height: none;
+    border-radius: 0;
+  }
+  .preview-modal__header {
+    padding: 16px 18px;
+  }
+  .preview-modal__info h3 {
+    font-size: 16px;
+  }
+  .preview-action span:last-child {
+    display: none;
+  }
+  .preview-action--download {
+    width: 44px;
+    padding: 0;
+  }
+}
+@keyframes backdrop-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes modal-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* ===== Tag de categoria no modal de preview ===== */
+.category-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 11px;
+  border-radius: 8px;
+  color: #1450c8;
+  border: 1px solid rgba(0, 74, 232, 0.16);
+  background: rgba(0, 74, 232, 0.08);
+  font-size: 12px;
+  font-weight: 800;
+}
+.category-chip--nota-fiscal,
+.category-chip--romaneio,
+.category-chip--logistica,
+.category-chip--pedido-de-compra {
+  color: #087443;
+  border-color: rgba(0, 163, 74, 0.18);
+  background: rgba(0, 163, 74, 0.1);
+}
+.category-chip--cronograma,
+.category-chip--orcamento,
+.category-chip--proposta-comercial,
+.category-chip--art,
+.category-chip--memorial-de-calculo {
+  color: #a36715;
+  border-color: rgba(183, 121, 31, 0.22);
+  background: rgba(183, 121, 31, 0.1);
+}
+
 </style>
