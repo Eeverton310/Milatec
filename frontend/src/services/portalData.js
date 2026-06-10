@@ -64,7 +64,18 @@ function adaptClientPortalData(dashboard) {
   const adaptedWorks = budgets.map((budget) => {
     const linkedProjects = (budget.linkedProjects || [])
       .map((id) => projectById.get(id))
-      .filter(Boolean);
+      .filter(Boolean)
+      // Garante que cada projeto vinculado tenha um "product" exibível.
+      // O projeto cru não traz "product"; usamos o produto do orçamento,
+      // caindo para o tipo de orçamento do próprio projeto.
+      .map((project) => ({
+        ...project,
+        product:
+          project.product ||
+          budget.product ||
+          project.budgetType ||
+          'Informação em atualização',
+      }));
     const linkedDeliveries = (budget.linkedDeliveries || [])
       .map((id) => deliveryById.get(id))
       .filter(Boolean);
@@ -73,6 +84,8 @@ function adaptClientPortalData(dashboard) {
       id: budget.id,
       name: budget.name || 'Obra',
       city: budget.city || 'Local não informado',
+      // Quantidade da obra (o backend envia como totalQuantity)
+      quantity: budget.totalQuantity ?? null,
       stage: budget.stage || 'Informação em atualização',
       budgetType: budget.budgetType || 'Tipo não informado',
       product: budget.product || 'Informação em atualização',
@@ -354,7 +367,6 @@ function collectAttachments(record, sourceLabel, clientName = 'MilaTec') {
     );
 }
 
-//
 function adaptAdminPortalData(raw) {
   const companies = raw?.companies || [];
   const users = raw?.users || [];
