@@ -223,22 +223,33 @@ function adaptClientPortalData(dashboard) {
       id: delivery.id,
       workId: parentBudget?.id || '',
       workName: parentBudget?.name || 'Obra não vinculada',
-      name: `Lote — ${delivery.stage || 'Entrega'}`,
+      // Nome real da entrega (ex: "CELI - BARRA GARDEN - 1ª ENTREGA")
+      name: delivery.name || `Lote — ${delivery.stage || 'Entrega'}`,
       date: formatDate(delivery.deliveryDate),
-      displayDate: formatDate(delivery.deliveryDate),
-      invoiceDate: formatDate(delivery.deliveryDate),
+      displayDate: delivery.deliveryDate ? formatDate(delivery.deliveryDate) : 'A definir',
+      invoiceDate: delivery.deliveryDate ? formatDate(delivery.deliveryDate) : '-',
       hasDate,
-      quantity: delivery.quantity ? `${delivery.quantity} un.` : 'A definir',
-      value: delivery.value ? formatCurrency(delivery.value) : 'A informar',
+      quantity: delivery.quantity != null ? `${delivery.quantity} un.` : 'A definir',
+      value:
+        delivery.value && Number(delivery.value) > 0
+          ? formatCurrency(delivery.value)
+          : 'A informar',
       status: delivery.stage || 'Programada',
       stage: delivery.stage || 'Programada',
       tone: getDeliveryTone(delivery.stage),
       projectName: linkedProject?.name || 'Projeto não vinculado',
+      // Cidade da obra vinculada (vinha vazia no modal)
+      workCity:
+        delivery.city ||
+        parentBudget?.city ||
+        'Local não informado',
       deliveryAddress:
-        parentBudget?.deliveryAddress || delivery.city || 'Endereço não informado',
-      invoiceAttachment: null,
-      packingListAttachment: null,
-      purchaseOrderAttachment: null,
+        delivery.deliveryAddress ||
+        parentBudget?.deliveryAddress ||
+        delivery.city ||
+        'Endereço não informado',
+      transport: delivery.transport || null,
+      weight: delivery.weight != null ? `${delivery.weight} kg` : null,
     };
   });
 
@@ -670,4 +681,4 @@ async function loadAdminPortalData() {
 export function getAdminPortalData() {
   loadAdminPortalData();
   return adminState;
-} //
+}

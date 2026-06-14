@@ -173,79 +173,79 @@
       @click.self="closeDetail"
     >
       <section
-        class="detail-modal"
+        class="detail-modal delivery-modal"
         role="dialog"
         aria-modal="true"
         :aria-label="`Detalhes da entrega ${selectedDelivery.name}`"
       >
-        <header class="detail-modal__header">
-          <div>
+        <header class="delivery-modal__header">
+          <div class="delivery-modal__heading">
             <p class="pill">Detalhe da entrega</p>
             <h3>{{ selectedDelivery.name }}</h3>
+            <button class="delivery-modal__work" type="button" @click="goToWork(selectedDelivery.workId)">
+              <span class="material-icons" aria-hidden="true">apartment</span>
+              {{ selectedDelivery.workName }}
+            </button>
           </div>
           <button class="modal-close" type="button" aria-label="Fechar detalhe" @click="closeDetail">
             <span class="material-icons" aria-hidden="true">close</span>
           </button>
         </header>
 
-        <div class="detail-grid">
-          <div>
-            <span>Nome</span>
-            <strong>{{ selectedDelivery.name }}</strong>
+        <!-- Faixa de destaque: etapa, valor e quantidade -->
+        <div class="delivery-highlights">
+          <div class="delivery-highlight">
+            <span>Etapa</span>
+            <strong :class="`delivery-stage delivery-stage--${selectedDelivery.tone}`">
+              {{ selectedDelivery.stage }}
+            </strong>
           </div>
-          <div>
-            <span>Obra associada</span>
-            <button class="detail-link" type="button" @click="goToWork(selectedDelivery.workId)">
-              {{ selectedDelivery.workName }}
-            </button>
+          <div class="delivery-highlight">
+            <span>Valor</span>
+            <strong class="delivery-highlight__value">{{ selectedDelivery.value }}</strong>
           </div>
-          <div>
-            <span>Cidade</span>
-            <strong>{{ selectedDelivery.workCity }}</strong>
-          </div>
-          <div>
-            <span>Data entrega</span>
-            <strong>{{ selectedDelivery.displayDate }}</strong>
-          </div>
-          <div>
+          <div class="delivery-highlight">
             <span>Quantidade</span>
             <strong>{{ selectedDelivery.quantity }}</strong>
           </div>
-          <div>
-            <span>Etapa da entrega</span>
-            <strong>{{ selectedDelivery.stage }}</strong>
-          </div>
-          <div>
-            <span>Data faturamento</span>
-            <strong>{{ selectedDelivery.invoiceDate }}</strong>
-          </div>
-          <div>
-            <span>Endereço de entrega</span>
-            <strong>{{ selectedDelivery.deliveryAddress }}</strong>
-          </div>
-          <div>
-            <span>Valor</span>
-            <strong>{{ selectedDelivery.value }}</strong>
-          </div>
         </div>
 
-        <section class="detail-section">
-          <h4>Documentos</h4>
-          <div class="document-list">
-            <div v-for="item in deliveryDocumentRows(selectedDelivery)" :key="item.label" class="document-item">
-              <span>{{ item.label }}</span>
+        <!-- Datas -->
+        <section class="delivery-block">
+          <h4><span class="material-icons" aria-hidden="true">event</span> Datas</h4>
+          <div class="delivery-info-grid">
+            <div class="delivery-info">
+              <span>Data de entrega</span>
+              <strong>{{ selectedDelivery.displayDate }}</strong>
+            </div>
+            <div class="delivery-info">
+              <span>Data faturamento</span>
+              <strong>{{ selectedDelivery.invoiceDate }}</strong>
+            </div>
+          </div>
+        </section>
+
+        <!-- Local -->
+        <section class="delivery-block">
+          <h4><span class="material-icons" aria-hidden="true">place</span> Local</h4>
+          <div class="delivery-info-grid">
+            <div class="delivery-info">
+              <span>Cidade</span>
+              <strong>{{ selectedDelivery.workCity }}</strong>
+            </div>
+            <div class="delivery-info delivery-info--wide">
+              <span>Endereço de entrega</span>
               <a
-                v-if="item.attachment"
-                :href="item.attachment.href"
-                class="attachment-action"
-                :aria-label="item.attachment.actionLabel"
+                v-if="isLink(selectedDelivery.deliveryAddress)"
+                :href="selectedDelivery.deliveryAddress"
+                class="delivery-map-link"
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                <span class="material-icons" aria-hidden="true">
-                  {{ resolveActionIcon(item.attachment.actionLabel) }}
-                </span>
-                <span>{{ item.attachment.name }}</span>
+                <span class="material-icons" aria-hidden="true">map</span>
+                Abrir no mapa
               </a>
-              <strong v-else>Pendente</strong>
+              <strong v-else>{{ selectedDelivery.deliveryAddress }}</strong>
             </div>
           </div>
         </section>
@@ -405,29 +405,8 @@ const goToWork = (workId) => {
   router.push({ path: '/cliente/obras', query: { obra: workId } });
 };
 
-const deliveryDocumentRows = (delivery) => [
-  {
-    label: 'Pedido de Compra (anexo)',
-    attachment: delivery.purchaseOrderAttachment,
-  },
-  {
-    label: 'Romaneio (PDF)',
-    attachment: delivery.packingListAttachment,
-  },
-  {
-    label: 'Nota fiscal',
-    attachment: delivery.invoiceAttachment,
-  },
-];
-
-const resolveActionIcon = (actionLabel) => {
-  const iconByAction = {
-    Visualizar: 'visibility',
-    Baixar: 'download',
-  };
-
-  return iconByAction[actionLabel] || 'description';
-};
+const isLink = (value) =>
+  typeof value === 'string' && /^https?:\/\//i.test(value);
 </script>
 
 <style scoped>
@@ -815,6 +794,169 @@ const resolveActionIcon = (actionLabel) => {
   gap: 12px;
 }
 
+/* ===== Novo modal de entrega (padrão da empresa) ===== */
+.delivery-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.delivery-modal__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+.delivery-modal__heading h3 {
+  margin: 8px 0 10px;
+  color: var(--text-strong);
+  font-size: 24px;
+  line-height: 1.2;
+}
+.delivery-modal__work {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid rgba(0, 74, 232, 0.18);
+  border-radius: 999px;
+  background: rgba(0, 74, 232, 0.06);
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.delivery-modal__work:hover {
+  background: rgba(0, 74, 232, 0.12);
+}
+.delivery-modal__work .material-icons {
+  font-size: 17px;
+}
+
+/* Faixa de destaque */
+.delivery-highlights {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 18px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(5, 8, 102, 0.04), rgba(0, 74, 232, 0.06));
+  border: 1px solid rgba(0, 74, 232, 0.1);
+}
+.delivery-highlight {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.delivery-highlight span {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.delivery-highlight strong {
+  font-size: 18px;
+  color: var(--text-strong);
+}
+.delivery-highlight__value {
+  color: #087443;
+}
+.delivery-stage {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+}
+.delivery-stage--success {
+  color: #087443;
+  background: rgba(0, 163, 74, 0.12);
+}
+.delivery-stage--warning {
+  color: #9a6700;
+  background: rgba(214, 158, 0, 0.14);
+}
+.delivery-stage--danger {
+  color: #b42318;
+  background: rgba(217, 45, 32, 0.12);
+}
+.delivery-stage--info {
+  color: var(--primary);
+  background: rgba(0, 74, 232, 0.1);
+}
+
+/* Blocos de seção */
+.delivery-block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.delivery-block h4 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-strong);
+}
+.delivery-block h4 .material-icons {
+  font-size: 18px;
+  color: var(--primary);
+}
+.delivery-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+.delivery-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid var(--stroke-soft);
+  border-radius: 12px;
+  background: #f9fbff;
+}
+.delivery-info--wide {
+  grid-column: 1 / -1;
+}
+.delivery-info span {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.delivery-info strong {
+  color: var(--text-strong);
+  font-size: 15px;
+  word-break: break-word;
+}
+.delivery-map-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+.delivery-map-link:hover {
+  opacity: 0.9;
+}
+.delivery-map-link .material-icons {
+  font-size: 17px;
+}
+
 .detail-grid div,
 .document-item {
   min-height: 92px;
@@ -926,5 +1068,3 @@ const resolveActionIcon = (actionLabel) => {
   }
 }
 </style>
-
-
