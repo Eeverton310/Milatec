@@ -99,7 +99,27 @@ function adaptClientPortalData(dashboard) {
       }));
     const linkedDeliveries = (budget.linkedDeliveries || [])
       .map((id) => deliveryById.get(id))
-      .filter(Boolean);
+      .filter(Boolean)
+      // Enriquece cada entrega com os campos que a tabela do modal espera.
+      // (a tabela usa os objetos crus do backend, então formatamos aqui)
+      .map((delivery) => ({
+        ...delivery,
+        name: delivery.name || 'Informação em atualização',
+        deliveryAddress:
+          delivery.deliveryAddress || delivery.city || 'Endereço não informado',
+        stage: delivery.stage || 'Informação em atualização',
+        // "Data faturamento" usa a Data de entrega (não há campo de faturamento)
+        invoiceDate: delivery.deliveryDate
+          ? formatDate(delivery.deliveryDate)
+          : '-',
+        quantity:
+          delivery.quantity != null ? `${delivery.quantity} un.` : '-',
+        // Valor Entrega Realizada (mostra só quando > 0)
+        value:
+          delivery.value && Number(delivery.value) > 0
+            ? formatCurrency(delivery.value)
+            : '-',
+      }));
 
     return {
       id: budget.id,
