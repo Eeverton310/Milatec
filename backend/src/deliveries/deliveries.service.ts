@@ -106,7 +106,7 @@ export class DeliveriesService {
       // Etapa real = "Etapa da entrega" (e não "Etapa de entrega")
       stage: delivery['Etapa da entrega'] || 'Informação em atualização',
       // Valor real = "Valor Entrega Realizada"
-      value: delivery['Valor Entrega Realizada'] ?? null,
+      value: delivery['Valor'] ?? null,
       // Cidade: usa a da obra; cai para o lookup vindo de Orçamentos
       city:
         delivery['Cidade da obra'] ||
