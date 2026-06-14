@@ -46,7 +46,32 @@
       <header class="calendar-panel__header">
         <div>
           <p class="pill">Calendário de entregas</p>
-          <h3>{{ calendarTitle }}</h3>
+          <div class="calendar-nav">
+            <button
+              type="button"
+              class="calendar-nav__btn"
+              aria-label="Mês anterior"
+              @click="goToPreviousMonth"
+            >
+              <span class="material-icons" aria-hidden="true">chevron_left</span>
+            </button>
+            <h3>{{ calendarTitle }}</h3>
+            <button
+              type="button"
+              class="calendar-nav__btn"
+              aria-label="Próximo mês"
+              @click="goToNextMonth"
+            >
+              <span class="material-icons" aria-hidden="true">chevron_right</span>
+            </button>
+            <button
+              type="button"
+              class="calendar-nav__today"
+              @click="goToCurrentMonth"
+            >
+              Hoje
+            </button>
+          </div>
         </div>
         <span>{{ datedDeliveries.length }} entregas com data</span>
       </header>
@@ -61,7 +86,7 @@
             v-for="day in calendarDays"
             :key="day.key"
             class="calendar-day"
-            :class="{ 'calendar-day--empty': day.empty }"
+            :class="{ 'calendar-day--empty': day.empty, 'calendar-day--today': day.isToday }"
           >
             <span v-if="!day.empty" class="calendar-day__number">{{ day.day }}</span>
             <button
@@ -308,15 +333,30 @@ const paginatedDeliveries = computed(() => {
 const datedDeliveries = computed(() => filteredDeliveries.value.filter((delivery) => delivery.hasDate));
 const unscheduledDeliveries = computed(() => filteredDeliveries.value.filter((delivery) => !delivery.hasDate));
 
-const calendarMonth = computed(() => {
-  const dates = datedDeliveries.value
-    .map((delivery) => parseBrDate(delivery.date))
-    .filter(Boolean)
-    .sort((dateA, dateB) => dateA - dateB);
-  const baseDate = dates[0] || new Date();
+/* Calendário começa no mês atual e pode ser navegado pelas setas. */
+const today = new Date();
+const calendarMonth = ref(new Date(today.getFullYear(), today.getMonth(), 1));
 
-  return new Date(baseDate.getFullYear(), baseDate.getMonth(), 1);
-});
+function goToPreviousMonth() {
+  calendarMonth.value = new Date(
+    calendarMonth.value.getFullYear(),
+    calendarMonth.value.getMonth() - 1,
+    1,
+  );
+}
+
+function goToNextMonth() {
+  calendarMonth.value = new Date(
+    calendarMonth.value.getFullYear(),
+    calendarMonth.value.getMonth() + 1,
+    1,
+  );
+}
+
+function goToCurrentMonth() {
+  const now = new Date();
+  calendarMonth.value = new Date(now.getFullYear(), now.getMonth(), 1);
+}
 
 const calendarTitle = computed(() =>
   calendarMonth.value.toLocaleDateString('pt-BR', {
@@ -339,11 +379,13 @@ const calendarDays = computed(() => {
   for (let day = 1; day <= daysInMonth; day += 1) {
     const date = new Date(year, month, day);
     const dateKey = formatDateKey(date);
+    const todayKey = formatDateKey(new Date());
 
     cells.push({
       key: dateKey,
       day,
       empty: false,
+      isToday: dateKey === todayKey,
       deliveries: filteredDeliveries.value.filter((delivery) => getDeliveryDateKey(delivery) === dateKey),
     });
   }
@@ -495,6 +537,52 @@ const isLink = (value) =>
   text-transform: capitalize;
 }
 
+/* Navegação de meses do calendário */
+.calendar-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+.calendar-nav h3 {
+  margin: 0;
+  min-width: 170px;
+  color: var(--text-strong);
+  text-transform: capitalize;
+}
+.calendar-nav__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--stroke-soft);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--primary);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.calendar-nav__btn:hover {
+  background: rgba(0, 74, 232, 0.08);
+  border-color: rgba(0, 74, 232, 0.24);
+}
+.calendar-nav__today {
+  margin-left: 4px;
+  padding: 7px 14px;
+  border: 1px solid rgba(0, 74, 232, 0.2);
+  border-radius: 8px;
+  background: rgba(0, 74, 232, 0.06);
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.calendar-nav__today:hover {
+  background: rgba(0, 74, 232, 0.14);
+}
+
 .calendar-panel__header > span {
   color: var(--primary);
   font-size: 13px;
@@ -548,6 +636,22 @@ const isLink = (value) =>
 
 .calendar-day--empty {
   background: rgba(246, 249, 255, 0.5);
+}
+
+/* Destaque do dia atual */
+.calendar-day--today {
+  background: rgba(0, 74, 232, 0.05);
+  box-shadow: inset 0 0 0 2px rgba(0, 74, 232, 0.35);
+}
+.calendar-day--today .calendar-day__number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
 }
 
 .calendar-day__number {
