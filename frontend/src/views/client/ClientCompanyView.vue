@@ -48,24 +48,7 @@
         </BaseCard>
       </section>
 
-      <section class="dashboard-grid">
-        <BaseCard class="company-summary-card">
-          <template #header>
-            <div class="section-heading">
-              <p class="pill">Empresa</p>
-              <h3>Dados principais</h3>
-            </div>
-          </template>
-
-          <div class="company-info-grid">
-            <article v-for="item in companyDetailCards" :key="item.label" class="company-info-card">
-              <span>{{ item.label }}</span>
-              <strong>{{ item.value }}</strong>
-              <small v-if="item.helper">{{ item.helper }}</small>
-            </article>
-          </div>
-        </BaseCard>
-
+      <section class="dashboard-grid dashboard-grid--single">
         <BaseCard>
           <template #header>
             <div class="section-heading">
@@ -546,6 +529,11 @@ function summarizeBy(items, getLabel) {
   align-items: start;
 }
 
+/* Quando há só o Resumo operacional, ocupa a largura inteira */
+.dashboard-grid--single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .dashboard-columns {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -602,6 +590,14 @@ function summarizeBy(items, getLabel) {
 .document-grid {
   display: grid;
   gap: 12px;
+}
+
+/* Em telas largas, o resumo operacional usa 2 colunas para não esticar */
+@media (min-width: 900px) {
+  .overview-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 28px;
+  }
 }
 
 .expandable-panel {
