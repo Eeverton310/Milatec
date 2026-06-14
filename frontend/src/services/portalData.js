@@ -670,4 +670,4 @@ async function loadAdminPortalData() {
 export function getAdminPortalData() {
   loadAdminPortalData();
   return adminState;
-}
+} //
