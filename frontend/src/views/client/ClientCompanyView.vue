@@ -538,6 +538,14 @@ function summarizeBy(items, getLabel) {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+/* Cards das colunas esticam para a mesma altura, evitando vazios laterais */
+.dashboard-columns {
+  align-items: stretch;
+}
+.dashboard-columns > * {
+  height: 100%;
+}
+
 .company-summary-card :deep(.card__body) {
   gap: 10px;
 }
