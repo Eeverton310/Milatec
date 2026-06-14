@@ -212,15 +212,11 @@
 
         <!-- Datas -->
         <section class="delivery-block">
-          <h4><span class="material-icons" aria-hidden="true">event</span> Datas</h4>
+          <h4><span class="material-icons" aria-hidden="true">event</span> Data</h4>
           <div class="delivery-info-grid">
             <div class="delivery-info">
               <span>Data de entrega</span>
               <strong>{{ selectedDelivery.displayDate }}</strong>
-            </div>
-            <div class="delivery-info">
-              <span>Data faturamento</span>
-              <strong>{{ selectedDelivery.invoiceDate }}</strong>
             </div>
           </div>
         </section>
@@ -233,7 +229,7 @@
               <span>Cidade</span>
               <strong>{{ selectedDelivery.workCity }}</strong>
             </div>
-            <div class="delivery-info delivery-info--wide">
+            <div class="delivery-info">
               <span>Endereço de entrega</span>
               <a
                 v-if="isLink(selectedDelivery.deliveryAddress)"
@@ -242,7 +238,9 @@
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <span class="material-icons" aria-hidden="true">map</span>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/>
+                </svg>
                 Abrir no mapa
               </a>
               <strong v-else>{{ selectedDelivery.deliveryAddress }}</strong>
@@ -939,22 +937,25 @@ const isLink = (value) =>
 .delivery-map-link {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   align-self: flex-start;
-  padding: 8px 14px;
-  border-radius: 8px;
+  margin-top: 2px;
+  padding: 9px 16px;
+  border-radius: 9px;
   background: var(--primary);
   color: #fff;
   font-size: 13px;
   font-weight: 700;
   text-decoration: none;
-  transition: opacity 0.15s ease;
+  box-shadow: 0 4px 12px rgba(0, 74, 232, 0.22);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 .delivery-map-link:hover {
-  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 74, 232, 0.3);
 }
-.delivery-map-link .material-icons {
-  font-size: 17px;
+.delivery-map-link svg {
+  flex-shrink: 0;
 }
 
 .detail-grid div,
