@@ -12,25 +12,11 @@
 
     <header class="login__header">
       <p class="eyebrow">Portal MilaTec</p>
-      <h1>Entre na área correta da MilaTec</h1>
+      <h1>Acesse o portal da MilaTec</h1>
       <p class="subtitle">
-        Escolha o perfil, informe o e-mail autorizado e siga para a validação de acesso da área correta.
+        Informe o e-mail autorizado da sua empresa para receber o código de acesso e acompanhar obras, projetos, entregas e documentos.
       </p>
     </header>
-
-    <div class="login__roles" aria-label="Seleção de perfil">
-      <button
-        v-for="profile in profileOptions"
-        :key="profile.role"
-        type="button"
-        class="login__role"
-        :class="{ 'login__role--active': selectedRole === profile.role }"
-        @click="selectProfile(profile)"
-      >
-        <strong>{{ profile.areaLabel }}</strong>
-        <span>{{ profile.description }}</span>
-      </button>
-    </div>
 
     <form class="login__form" @submit.prevent="onSubmit">
       <BaseInput
@@ -41,11 +27,6 @@
         tone="light"
       />
 
-      <div class="login__summary">
-        <span class="login__summary-pill">{{ selectedProfile.label }}</span>
-        <p>{{ selectedProfile.description }}</p>
-      </div>
-      
       <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
 
       <BaseButton class="login__submit" size="lg" block>
@@ -53,7 +34,7 @@
       </BaseButton>
 
       <p class="helper">
-        Cliente e administração possuem áreas separadas conforme o perfil autenticado.
+        Você receberá um código de 6 dígitos no e-mail informado. O acesso é exclusivo para e-mails cadastrados.
       </p>
     </form>
   </section>
@@ -77,10 +58,6 @@ const isLoading = ref(false);
 const selectedProfile = computed(
   () => profileOptions.find((profile) => profile.role === selectedRole.value) || profileOptions[0],
 );
-
-const selectProfile = (profile) => {
-  selectedRole.value = profile.role;
-};
 
 const onSubmit = async () => {
   errorMessage.value = '';
@@ -114,21 +91,25 @@ const onSubmit = async () => {
 
 <style scoped>
 .login-card {
-  width: min(540px, 94vw);
-  padding: 34px 32px;
+  width: min(480px, 94vw);
+  padding: 0 0 34px;
   border-radius: 24px;
   background: #ffffff;
   border: 1px solid #e2e8f5;
   box-shadow: 0 26px 54px rgba(7, 17, 40, 0.24);
   display: grid;
-  gap: 20px;
+  gap: 22px;
+  overflow: hidden;
 }
 
+/* Faixa superior com a identidade da MilaTec */
 .login__brand {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
+  padding: 34px 32px 26px;
+  background: linear-gradient(135deg, #050866 0%, #004ae8 100%);
 }
 
 .brand-lockup {
@@ -136,42 +117,37 @@ const onSubmit = async () => {
   align-items: center;
   justify-content: center;
   gap: 14px;
-  width: 100%;
-  padding: 14px 18px;
-  border-radius: 20px;
-  background: linear-gradient(180deg, #f7faff 0%, #eef4ff 100%);
-  border: 1px solid #dbe5f4;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.84);
 }
 
 .brand-lockup__icon {
-  width: 58px;
-  height: 58px;
+  width: 64px;
+  height: 64px;
   object-fit: cover;
   border-radius: 16px;
-  box-shadow: 0 14px 26px rgba(5, 8, 102, 0.18);
+  background: #fff;
+  padding: 4px;
+  box-shadow: 0 14px 26px rgba(0, 0, 0, 0.24);
 }
 
 .brand-lockup__copy strong {
   display: block;
-  color: #050866;
-  font-size: 30px;
+  color: #ffffff;
+  font-size: 32px;
   line-height: 1;
   letter-spacing: -0.02em;
 }
 
-.badge,
-.login__summary-pill {
+.badge {
   display: inline-flex;
   align-items: center;
   min-height: 30px;
-  padding: 0 12px;
+  padding: 0 14px;
   border-radius: 999px;
-  background: rgba(0, 163, 74, 0.12);
-  color: #00a34a;
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
   font-weight: 600;
   font-size: var(--fs-xs);
-  border: 1px solid rgba(0, 168, 107, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .eyebrow {
@@ -180,6 +156,10 @@ const onSubmit = async () => {
   text-transform: uppercase;
   color: #6b7ea7;
   font-weight: 700;
+}
+
+.login__header {
+  padding: 0 32px;
 }
 
 .login__header h1 {
@@ -240,6 +220,7 @@ const onSubmit = async () => {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  padding: 0 32px;
 }
 
 .login__summary {
@@ -290,4 +271,3 @@ const onSubmit = async () => {
   margin: 0;
 }
 </style>
-
